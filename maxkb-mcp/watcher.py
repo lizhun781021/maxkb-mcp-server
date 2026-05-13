@@ -18,6 +18,7 @@ MAXKB_BASE_URL = os.environ.get("MAXKB_BASE_URL", "http://localhost:8080")
 MAXKB_API_TOKEN = os.environ.get("MAXKB_API_TOKEN", None)
 VAULT_PATH = os.environ.get("VAULT_PATH", "/Users/lizhun/Library/Mobile Documents/iCloud~md~obsidian/Documents/my obsidian vault")
 KNOWLEDGE_BASE_ID = os.environ.get("KNOWLEDGE_BASE_ID", "019e0aad-c958-7e30-94aa-0a31cb7dc1a7")
+TOKEN_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".token")
 
 # 同步间隔（秒）- 防止频繁同步
 SYNC_INTERVAL = 5
@@ -174,49 +175,58 @@ def main():
     """主函数"""
     global MAXKB_BASE_URL, MAXKB_API_TOKEN, VAULT_PATH, KNOWLEDGE_BASE_ID
 
-    print("=" * 50)
-    print("Obsidian Vault 文件监控器")
-    print("=" * 50)
-    print(f"Vault 路径: {VAULT_PATH}")
-    print(f"MaxKB 地址: {MAXKB_BASE_URL}")
-    print(f"知识库 ID: {KNOWLEDGE_BASE_ID}")
-    print(f"同步间隔: {SYNC_INTERVAL} 秒")
-    print("=" * 50)
+    print("=" * 50, flush=True)
+    print("Obsidian Vault 文件监控器", flush=True)
+    print("=" * 50, flush=True)
+    print(f"Vault 路径: {VAULT_PATH}", flush=True)
+    print(f"MaxKB 地址: {MAXKB_BASE_URL}", flush=True)
+    print(f"知识库 ID: {KNOWLEDGE_BASE_ID}", flush=True)
+    print(f"同步间隔: {SYNC_INTERVAL} 秒", flush=True)
+    print("=" * 50, flush=True)
 
     # 检查 vault 路径
     if not os.path.exists(VAULT_PATH):
-        print(f"[ERROR] Vault 路径不存在: {VAULT_PATH}")
+        print(f"[ERROR] Vault 路径不存在: {VAULT_PATH}", flush=True)
         sys.exit(1)
 
     # 登录（如果未配置 token）
     if not MAXKB_API_TOKEN:
-        print("\n[INFO] 未配置 token，尝试登录...")
-        username = input("用户名: ").strip()
-        password = input("密码: ").strip()
-        token = login(username, password)
-        if not token:
-            print("[ERROR] 登录失败")
-            sys.exit(1)
-        print("[OK] 登录成功")
+        # 尝试从 .token 文件读取
+        if os.path.exists(TOKEN_FILE):
+            with open(TOKEN_FILE, "r") as f:
+                MAXKB_API_TOKEN = f.read().strip()
+                print("[OK] 从配置文件读取 token", flush=True)
+        else:
+            print("\n[INFO] 未配置 token，尝试登录...", flush=True)
+            username = input("用户名: ").strip()
+            password = input("密码: ").strip()
+            token = login(username, password)
+            if not token:
+                print("[ERROR] 登录失败", flush=True)
+                sys.exit(1)
+            # 保存 token 到文件
+            with open(TOKEN_FILE, "w") as f:
+                f.write(token)
+            print("[OK] 登录成功，token 已保存", flush=True)
 
     # 启动文件监控
-    print("\n[INFO] 启动文件监控...")
+    print("\n[INFO] 启动文件监控...", flush=True)
     event_handler = MarkdownHandler()
     observer = Observer()
     observer.schedule(event_handler, VAULT_PATH, recursive=True)
     observer.start()
 
-    print("[OK] 监控已启动，按 Ctrl+C 停止")
+    print("[OK] 监控已启动，按 Ctrl+C 停止", flush=True)
 
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("\n[INFO] 停止监控...")
+        print("\n[INFO] 停止监控...", flush=True)
         observer.stop()
 
     observer.join()
-    print("[OK] 监控已停止")
+    print("[OK] 监控已停止", flush=True)
 
 
 if __name__ == "__main__":
