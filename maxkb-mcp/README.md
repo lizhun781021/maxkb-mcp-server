@@ -140,6 +140,24 @@ KNOWLEDGE_BASE_ID=019e0aad-c958-7e30-94aa-0a31cb7dc1a7 \
 python watcher.py
 ```
 
+### 开机自启动（macOS）
+
+已配置 launchd 服务，开机自动运行：
+
+```bash
+# 加载服务（开机自启动）
+launchctl load ~/Library/LaunchAgents/com.maxkb.watcher.plist
+
+# 卸载服务
+launchctl unload ~/Library/LaunchAgents/com.maxkb.watcher.plist
+
+# 查看服务状态
+launchctl list | grep maxkb
+
+# 查看日志
+tail -f ~/Desktop/my_programs/maxkb-mcp/logs/watcher.log
+```
+
 ## 注意事项
 
 1. 登录时可能需要验证码
