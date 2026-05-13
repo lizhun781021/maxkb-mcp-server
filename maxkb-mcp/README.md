@@ -121,6 +121,25 @@ pip install -r requirements.txt
 | 应用列表 | GET /admin/api/workspace/default/application/1/100 |
 | 应用对话 | POST /admin/api/application/{id}/chat/completions |
 
+## 自动同步（文件监控）
+
+运行文件监控器，自动同步 Obsidian vault 变化到 MaxKB：
+
+```bash
+cd /Users/lizhun/Desktop/my_programs/maxkb-mcp
+python watcher.py
+```
+
+或使用环境变量配置：
+
+```bash
+MAXKB_BASE_URL=http://localhost:8080 \
+MAXKB_API_TOKEN=your_token \
+VAULT_PATH="/Users/lizhun/Library/Mobile Documents/iCloud~md~obsidian/Documents/my obsidian vault" \
+KNOWLEDGE_BASE_ID=019e0aad-c958-7e30-94aa-0a31cb7dc1a7 \
+python watcher.py
+```
+
 ## 注意事项
 
 1. 登录时可能需要验证码
